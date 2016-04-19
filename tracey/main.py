@@ -6,16 +6,17 @@ import sys
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import Terminal256Formatter
-from pygments.styles import STYLE_MAP
+from pygments.styles import get_all_styles
 
-def processor(style='monokai'):
+
+def processor(specific_style=None):
     traceback_follows = False
 
     line = sys.stdin.readline()
     tb_lines = []
 
     lexer = get_lexer_by_name('pytb')
-    formatter = Terminal256Formatter(style=style)
+    formatter = Terminal256Formatter(style=specific_style or 'monokai')
 
     while line:
         if line.startswith('Traceback (most recent call last)'):
@@ -41,11 +42,15 @@ def processor(style='monokai'):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    available_styles = ', '.join(STYLE_MAP.keys())
+    available_styles = ', '.join(get_all_styles())
     parser.add_argument(
         '--style',
         help='Use specified pygments style (%s)' % available_styles,
     )
     args = parser.parse_args()
 
-    processor(style=args.style)
+    if args.style not in available_styles:
+        print 'Error: unknown style "%s"' % args.style
+        exit(-1)
+
+    processor(specific_style=args.style)
