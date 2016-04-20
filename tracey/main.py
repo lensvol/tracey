@@ -9,7 +9,7 @@ from pygments.formatters import Terminal256Formatter
 from pygments.styles import get_all_styles
 
 
-def processor(specific_style=None):
+def processor(specific_style=None, traceback_only=False):
     traceback_follows = False
 
     line = sys.stdin.readline()
@@ -34,7 +34,7 @@ def processor(specific_style=None):
                 formatter,
             ),
             tb_lines = []
-        else:
+        elif not traceback_only:
             print line,
 
         line = sys.stdin.readline()
@@ -46,11 +46,21 @@ if __name__ == '__main__':
     parser.add_argument(
         '--style',
         help='Use specified pygments style (%s)' % available_styles,
+        default='monokai',
     )
+    parser.add_argument(
+        '--only',
+        help='Skip all non-traceback lines',
+        action='store_true',
+    )
+
     args = parser.parse_args()
 
     if args.style not in available_styles:
         print 'Error: unknown style "%s"' % args.style
         exit(-1)
 
-    processor(specific_style=args.style)
+    processor(
+        specific_style=args.style,
+        traceback_only=args.only,
+    )
